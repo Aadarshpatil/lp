@@ -1,0 +1,77 @@
+import java.util.Scanner;
+
+public class FCFS {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        // Step 1: Input number of processes
+        System.out.print("Enter the number of processes: ");
+        int n = scanner.nextInt(); // Number of processes
+        
+        int[] arrivalTime = new int[n]; // Array for arrival times
+        int[] burstTime = new int[n]; // Array for burst times
+        int[] waitingTime = new int[n]; // Array for waiting times
+        int[] turnaroundTime = new int[n]; // Array for turnaround times
+        
+        // Step 2: Input arrival and burst times for each process
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            arrivalTime[i] = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            burstTime[i] = scanner.nextInt();
+        }
+        
+        // Step 3: Calculate waiting time and turnaround time for each process
+        int currentTime = 0; // Track the current time in the CPU schedule
+        for (int i = 0; i < n; i++) {
+            // Waiting time is the current time minus the arrival time
+            if (currentTime < arrivalTime[i]) {
+                currentTime = arrivalTime[i]; // Move to the process's arrival time if needed
+            }
+            waitingTime[i] = currentTime - arrivalTime[i];
+            
+            // Update current time after process finishes execution
+            currentTime += burstTime[i];
+            
+            // Turnaround time = waiting time + burst time
+            turnaroundTime[i] = waitingTime[i] + burstTime[i];
+        }
+
+        // Step 4: Output the results
+        System.out.println("\nProcess\tArrival\tBurst\tWaiting\tTurnaround");
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + (i + 1) + "\t" + arrivalTime[i] + "\t" + burstTime[i] +
+                               "\t" + waitingTime[i] + "\t" + turnaroundTime[i]);
+        }
+
+        // Step 5: Calculate and display average waiting and turnaround times
+        double totalWaitingTime = 0;
+        double totalTurnaroundTime = 0;
+        for (int i = 0; i < n; i++) {
+            totalWaitingTime += waitingTime[i];
+            totalTurnaroundTime += turnaroundTime[i];
+        }
+        System.out.println("\nAverage Waiting Time: " + (totalWaitingTime / n));
+        System.out.println("Average Turnaround Time: " + (totalTurnaroundTime / n));
+        
+        scanner.close(); // Close the scanner object
+    }
+}
+
+
+INPUT TO BE GIVEN
+Enter the number of processes: 3
+Enter arrival time for process 1: 0
+Enter burst time for process 1: 4
+Enter arrival time for process 2: 2
+Enter burst time for process 2: 3
+Enter arrival time for process 3: 3
+Enter burst time for process 3: 2
+
+Process Arrival Burst Waiting Turnaround
+P1      0      4     0       4
+P2      2      3     2       5
+P3      3      2     4       6
+
+Average Waiting Time: 2.0
+Average Turnaround Time: 5.0

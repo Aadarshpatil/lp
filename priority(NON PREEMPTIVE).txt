@@ -1,0 +1,122 @@
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Scanner;
+
+class Process {
+    int id; // Process ID
+    int arrivalTime; // Arrival time of the process
+    int burstTime; // Burst time of the process
+    int priority; // Priority of the process (1 is the highest)
+    int waitingTime; // Waiting time of the process
+    int turnaroundTime; // Turnaround time of the process
+
+    public Process(int id, int arrivalTime, int burstTime, int priority) {
+        this.id = id;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.priority = priority;
+    }
+}
+
+public class PriorityScheduling {
+    
+    public static void calculateTimes(Process[] processes) {
+        int currentTime = 0;
+        int completed = 0;
+        boolean[] isCompleted = new boolean[processes.length];
+        
+        while (completed < processes.length) {
+            // Select process with highest priority that has arrived and not completed
+            Process selectedProcess = null;
+            for (Process p : processes) {
+                if (!isCompleted[p.id] && p.arrivalTime <= currentTime) {
+                    if (selectedProcess == null || p.priority < selectedProcess.priority) {
+                        selectedProcess = p;
+                    } else if (p.priority == selectedProcess.priority && p.arrivalTime < selectedProcess.arrivalTime) {
+                        selectedProcess = p; // Tie-break by arrival time
+                    }
+                }
+            }
+
+            if (selectedProcess == null) {
+                currentTime++; // If no process is ready, increase the time
+                continue;
+            }
+
+            // Process the selected process
+            isCompleted[selectedProcess.id] = true; // Mark it as completed
+            currentTime += selectedProcess.burstTime; // Increase current time by its burst time
+            completed++; // Increment the number of completed processes
+            
+            // Calculate waiting and turnaround times for the selected process
+            selectedProcess.turnaroundTime = currentTime - selectedProcess.arrivalTime;
+            selectedProcess.waitingTime = selectedProcess.turnaroundTime - selectedProcess.burstTime;
+        }
+    }
+
+    public static void printResults(Process[] processes) {
+        System.out.println("\nProcess\tArrival\tBurst\tPriority\tWaiting\tTurnaround");
+        int totalWaitingTime = 0;
+        int totalTurnaroundTime = 0;
+
+        for (Process p : processes) {
+            System.out.println("P" + (p.id + 1) + "\t" + p.arrivalTime + "\t" + p.burstTime + "\t" + p.priority + "\t\t" + p.waitingTime + "\t" + p.turnaroundTime);
+            totalWaitingTime += p.waitingTime;
+            totalTurnaroundTime += p.turnaroundTime;
+        }
+        
+        System.out.println("\nAverage Waiting Time: " + (double) totalWaitingTime / processes.length);
+        System.out.println("Average Turnaround Time: " + (double) totalTurnaroundTime / processes.length);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Step 1: Input number of processes
+        System.out.print("Enter the number of processes: ");
+        int n = scanner.nextInt();
+        
+        Process[] processes = new Process[n];
+
+        // Step 2: Input arrival time, burst time, and priority for each process
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            int arrivalTime = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            int burstTime = scanner.nextInt();
+            System.out.print("Enter priority for process " + (i + 1) + ": ");
+            int priority = scanner.nextInt();
+
+            processes[i] = new Process(i, arrivalTime, burstTime, priority);
+        }
+
+        // Step 3: Calculate waiting and turnaround times
+        calculateTimes(processes);
+
+        // Step 4: Display results
+        printResults(processes);
+        
+        scanner.close(); // Close scanner
+    }
+}
+
+
+INPUT TO BE GIVEN
+Enter the number of processes: 3
+Enter arrival time for process 1: 0
+Enter burst time for process 1: 10
+Enter priority for process 1: 3
+Enter arrival time for process 2: 1
+Enter burst time for process 2: 5
+Enter priority for process 2: 1
+Enter arrival time for process 3: 2
+Enter burst time for process 3: 8
+Enter priority for process 3: 2
+
+Process	Arrival	Burst	Priority	Waiting	Turnaround
+P1	    0	    10	    3		    13	    23
+P2	    1	    5	    1		    0	    5
+P3	    2	    8	    2		    4	    12
+
+Average Waiting Time: 5.67
+Average Turnaround Time: 13.33

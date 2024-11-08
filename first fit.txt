@@ -1,0 +1,60 @@
+import java.util.Scanner;
+
+public class FirstFit {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        // Input number of blocks and their sizes
+        System.out.print("Enter number of blocks: ");
+        int blockCount = scanner.nextInt();
+        int[] blocks = new int[blockCount];
+        System.out.println("Enter block sizes:");
+        for (int i = 0; i < blockCount; i++) {
+            blocks[i] = scanner.nextInt();
+        }
+
+        // Input number of processes and their sizes
+        System.out.print("Enter number of processes: ");
+        int processCount = scanner.nextInt();
+        int[] processes = new int[processCount];
+        System.out.println("Enter process sizes:");
+        for (int i = 0; i < processCount; i++) {
+            processes[i] = scanner.nextInt();
+        }
+
+        // Array to keep track of process allocations
+        int[] allocation = new int[processCount];
+
+        for (int i = 0; i < processCount; i++) {
+            allocation[i] = -1; // Initially, no process is allocated
+            for (int j = 0; j < blockCount; j++) {
+                if (blocks[j] >= processes[i]) { // Check if block can fit the process
+                    allocation[i] = j; // Allocate process to block
+                    blocks[j] -= processes[i]; // Reduce the block size
+                    break; // Move to the next process
+                }
+            }
+        }
+
+        // Print allocation results
+        System.out.println("First Fit Allocation:");
+        for (int i = 0; i < processCount; i++) {
+            if (allocation[i] != -1) {
+                System.out.println("Process " + i + " allocated to Block " + allocation[i]);
+            } else {
+                System.out.println("Process " + i + " not allocated");
+            }
+        }
+        scanner.close();
+    }
+}
+
+
+
+INPUT TO BE GIVEN
+Enter number of blocks: 5
+Enter block sizes:
+100 500 200 300 600
+Enter number of processes: 4
+Enter process sizes:
+212 417 112 426

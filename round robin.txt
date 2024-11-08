@@ -1,0 +1,125 @@
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
+class Process {
+    int id;
+    int arrivalTime;
+    int burstTime;
+    int remainingTime; // To track remaining time for Round Robin
+    int waitingTime;
+    int turnaroundTime;
+
+    public Process(int id, int arrivalTime, int burstTime) {
+        this.id = id;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.remainingTime = burstTime; // Initialize remaining time to burst time
+    }
+}
+
+public class RoundRobinScheduling {
+    
+    public static void roundRobin(Process[] processes, int quantum) {
+        int currentTime = 0;
+        Queue<Process> queue = new LinkedList<>();
+        
+        // Add all processes that have arrived initially
+        for (Process p : processes) {
+            if (p.arrivalTime <= currentTime) {
+                queue.add(p);
+            }
+        }
+        
+        // Main scheduling loop
+        while (!queue.isEmpty()) {
+            Process currentProcess = queue.poll();
+            
+            // Execute the current process for either the quantum or the remaining burst time
+            int timeSlice = Math.min(currentProcess.remainingTime, quantum);
+            currentProcess.remainingTime -= timeSlice;
+            currentTime += timeSlice;
+            
+            // If process completes, calculate turnaround and waiting times
+            if (currentProcess.remainingTime == 0) {
+                currentProcess.turnaroundTime = currentTime - currentProcess.arrivalTime;
+                currentProcess.waitingTime = currentProcess.turnaroundTime - currentProcess.burstTime;
+            } else {
+                // If process is not finished, re-add it to the queue for the next cycle
+                queue.add(currentProcess);
+            }
+            
+            // Add newly arrived processes to the queue
+            for (Process p : processes) {
+                if (p.arrivalTime <= currentTime && p.remainingTime > 0 && !queue.contains(p)) {
+                    queue.add(p);
+                }
+            }
+        }
+    }
+
+    public static void printResults(Process[] processes) {
+        System.out.println("\nProcess\tArrival\tBurst\tWaiting\tTurnaround");
+        int totalWaitingTime = 0;
+        int totalTurnaroundTime = 0;
+
+        for (Process p : processes) {
+            System.out.println("P" + (p.id + 1) + "\t" + p.arrivalTime + "\t" + p.burstTime + "\t" + p.waitingTime + "\t" + p.turnaroundTime);
+            totalWaitingTime += p.waitingTime;
+            totalTurnaroundTime += p.turnaroundTime;
+        }
+        
+        System.out.println("\nAverage Waiting Time: " + (double) totalWaitingTime / processes.length);
+        System.out.println("Average Turnaround Time: " + (double) totalTurnaroundTime / processes.length);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Step 1: Input number of processes and time quantum
+        System.out.print("Enter the number of processes: ");
+        int n = scanner.nextInt();
+        System.out.print("Enter the time quantum: ");
+        int quantum = scanner.nextInt();
+        
+        Process[] processes = new Process[n];
+
+        // Step 2: Input arrival and burst time for each process
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            int arrivalTime = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            int burstTime = scanner.nextInt();
+
+            processes[i] = new Process(i, arrivalTime, burstTime);
+        }
+
+        // Step 3: Perform Round Robin scheduling
+        roundRobin(processes, quantum);
+
+        // Step 4: Display results
+        printResults(processes);
+        
+        scanner.close();
+    }
+}
+
+
+
+INPUT TO BE GIVEN
+Enter the number of processes: 3
+Enter the time quantum: 4
+Enter arrival time for process 1: 0
+Enter burst time for process 1: 7
+Enter arrival time for process 2: 2
+Enter burst time for process 2: 4
+Enter arrival time for process 3: 4
+Enter burst time for process 3: 9
+
+Process	Arrival	Burst	Waiting	Turnaround
+P1	    0	    7	    6	    13
+P2	    2	    4	    4	    8
+P3	    4	    9	    9	    18
+
+Average Waiting Time: 6.33
+Average Turnaround Time: 13.0

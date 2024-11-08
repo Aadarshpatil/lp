@@ -1,0 +1,119 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class OptimalPageReplacement {
+    private int pageFrames;
+    private ArrayList<Integer> pages = new ArrayList<>();
+
+    public OptimalPageReplacement(int pageFrames) {
+        this.pageFrames = pageFrames;
+    }
+
+    public int findOptimalPageToReplace(ArrayList<Integer> frames, int currentIndex) {
+        int farthest = currentIndex;
+        int pageToReplace = -1;
+
+        for (int framePage : frames) {
+            int nextUse = Integer.MAX_VALUE; // If page isn't used again
+            for (int j = currentIndex + 1; j < pages.size(); j++) {
+                if (pages.get(j) == framePage) {
+                    nextUse = j; // Find the next occurrence of the page
+                    break;
+                }
+            }
+            if (nextUse > farthest) {
+                farthest = nextUse;
+                pageToReplace = framePage;
+            }
+        }
+        return pageToReplace;
+    }
+
+    public void insertPage(int page, ArrayList<Integer> frames, int currentIndex) {
+        // If page already in frames, no page fault
+        if (frames.contains(page)) {
+            System.out.println("Page " + page + " accessed (No Page Fault).");
+            return;
+        }
+
+        // If frames are not full, add the page directly
+        if (frames.size() < pageFrames) {
+            frames.add(page);
+            System.out.println("Page " + page + " added (Page Fault).");
+        } else {
+            // Page replacement required
+            int pageToReplace = findOptimalPageToReplace(frames, currentIndex);
+            frames.set(frames.indexOf(pageToReplace), page);
+            System.out.println("Page " + pageToReplace + " replaced with " + page + " (Page Fault).");
+        }
+    }
+
+    public void processPages() {
+        ArrayList<Integer> frames = new ArrayList<>();
+
+        for (int i = 0; i < pages.size(); i++) {
+            int page = pages.get(i);
+            insertPage(page, frames, i);
+            printFrames(frames);
+        }
+    }
+
+    public void addPage(int page) {
+        pages.add(page);
+    }
+
+    public void printFrames(ArrayList<Integer> frames) {
+        System.out.println("Current Frames: " + frames);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the number of page frames: ");
+        int pageFrames = scanner.nextInt();
+        OptimalPageReplacement optimal = new OptimalPageReplacement(pageFrames);
+
+        System.out.print("Enter the number of page requests: ");
+        int n = scanner.nextInt();
+        System.out.println("Enter the page sequence:");
+        for (int i = 0; i < n; i++) {
+            int page = scanner.nextInt();
+            optimal.addPage(page);
+        }
+
+        // Process pages using Optimal Page Replacement
+        optimal.processPages();
+
+        scanner.close();
+    }
+}
+
+
+
+INPUT TO BE GIVEN
+Example Output
+Suppose we have:
+
+Number of frames: 3
+Page sequence: 7, 0, 1, 2, 0, 3, 0, 4
+Simulation Walkthrough
+For each page request, the algorithm will check if it’s in the current frames:
+
+Page 7 → Not in frames, so add it (Page Fault).
+Current Frames: [7]
+Page 0 → Not in frames, so add it (Page Fault).
+Current Frames: [7, 0]
+Page 1 → Not in frames, so add it (Page Fault).
+Current Frames: [7, 0, 1]
+Page 2 → Not in frames. Frames are full, so the algorithm finds the page with the farthest future use. It replaces page 7 with 2.
+Current Frames: [2, 0, 1]
+Page 0 → Already in frames, so no page fault.
+Current Frames: [2, 0, 1]
+Page 3 → Not in frames, replace page 1 (used farthest in the future) with 3.
+Current Frames: [2, 0, 3]
+Page 0 → Already in frames, so no page fault.
+Current Frames: [2, 0, 3]
+Page 4 → Not in frames, replace page 2 with 4 (farthest future use).
+Current Frames: [4, 0, 3]
+Explanation of Output
+After each step, the program prints the current state of frames and any page replacements that occurred, helping you trace the sequence of operations and see which page faults were avoided using the optimal strategy.

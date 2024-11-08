@@ -1,0 +1,109 @@
+import java.util.Scanner;
+import java.util.Arrays;
+
+public class SJFPreemptive {
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        // Step 1: Input number of processes
+        System.out.print("Enter the number of processes: ");
+        int n = scanner.nextInt(); // Number of processes
+        
+        int[] arrivalTime = new int[n]; // Array for arrival times
+        int[] burstTime = new int[n]; // Array for burst times
+        int[] remainingTime = new int[n]; // Array for remaining burst time of each process
+        int[] waitingTime = new int[n]; // Array for waiting times
+        int[] turnaroundTime = new int[n]; // Array for turnaround times
+        
+        // Step 2: Input arrival and burst times for each process
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter arrival time for process " + (i + 1) + ": ");
+            arrivalTime[i] = scanner.nextInt();
+            System.out.print("Enter burst time for process " + (i + 1) + ": ");
+            burstTime[i] = scanner.nextInt();
+            remainingTime[i] = burstTime[i]; // Initially, remaining time is the burst time
+        }
+        
+        int complete = 0; // Count of completed processes
+        int currentTime = 0; // Track the current time
+        int shortest = -1; // Index of the process with the shortest remaining time
+        boolean found = false; // Flag to indicate if a suitable process is found
+        
+        // Step 3: Simulation of the SJF Preemptive Scheduling
+        while (complete < n) {
+            int minRemainingTime = Integer.MAX_VALUE; // Set a high value initially
+            
+            // Find process with minimum remaining time at currentTime
+            for (int i = 0; i < n; i++) {
+                if (arrivalTime[i] <= currentTime && remainingTime[i] < minRemainingTime && remainingTime[i] > 0) {
+                    minRemainingTime = remainingTime[i];
+                    shortest = i; // Update the index of the shortest job
+                    found = true;
+                }
+            }
+            
+            if (!found) {
+                // If no process found, increment time and continue the loop
+                currentTime++;
+                continue;
+            }
+            
+            // Process the selected job (shortest job with remaining time)
+            remainingTime[shortest]--;
+            
+            // If a process finishes, calculate waiting and turnaround times
+            if (remainingTime[shortest] == 0) {
+                complete++;
+                found = false; // Reset found flag for next iteration
+                
+                // Completion time is current time + 1
+                int finishTime = currentTime + 1;
+                turnaroundTime[shortest] = finishTime - arrivalTime[shortest];
+                waitingTime[shortest] = turnaroundTime[shortest] - burstTime[shortest];
+            }
+            
+            currentTime++; // Increment time after processing a unit of time
+        }
+
+        // Step 4: Print the results of each process
+        System.out.println("\nProcess\tArrival\tBurst\tWaiting\tTurnaround");
+        for (int i = 0; i < n; i++) {
+            System.out.println("P" + (i + 1) + "\t" + arrivalTime[i] + "\t" + burstTime[i] +
+                               "\t" + waitingTime[i] + "\t" + turnaroundTime[i]);
+        }
+
+        // Step 5: Calculate and display average waiting and turnaround times
+        double totalWaitingTime = 0;
+        double totalTurnaroundTime = 0;
+        for (int i = 0; i < n; i++) {
+            totalWaitingTime += waitingTime[i];
+            totalTurnaroundTime += turnaroundTime[i];
+        }
+        System.out.println("\nAverage Waiting Time: " + (totalWaitingTime / n));
+        System.out.println("Average Turnaround Time: " + (totalTurnaroundTime / n));
+        
+        scanner.close(); // Close the scanner object
+    }
+}
+
+
+
+Enter the number of processes: 4
+Enter arrival time for process 1: 0
+Enter burst time for process 1: 6
+Enter arrival time for process 2: 1
+Enter burst time for process 2: 8
+Enter arrival time for process 3: 2
+Enter burst time for process 3: 7
+Enter arrival time for process 4: 3
+Enter burst time for process 4: 3
+
+Process	Arrival	Burst	Waiting	Turnaround
+P1	    0	    6	    3	    9
+P2	    1	    8	    11	    19
+P3	    2	    7	    6	    13
+P4	    3	    3	    0	    3
+
+Average Waiting Time: 5.0
+Average Turnaround Time: 11.0

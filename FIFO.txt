@@ -1,0 +1,121 @@
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
+public class FIFOPageReplacement {
+    private int pageFrames;
+    private Queue<Integer> pages = new LinkedList<>(); // Holds pages in memory
+    
+    public FIFOPageReplacement(int pageFrames) {
+        this.pageFrames = pageFrames;
+    }
+
+    public void insertPage(int page) {
+        // If page is not in memory (page fault)
+        if (!pages.contains(page)) {
+            // If memory is full, remove the oldest page (FIFO)
+            if (pages.size() == pageFrames) {
+                int removedPage = pages.poll(); // Remove the front of the queue
+                System.out.println("Page " + removedPage + " removed (Page Fault).");
+            }
+            pages.add(page); // Add new page to memory
+            System.out.println("Page " + page + " added (Page Fault).");
+        } else {
+            // Page is already in memory, no page fault
+            System.out.println("Page " + page + " accessed (No Page Fault).");
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.print("Enter number of page frames: ");
+        int pageFrames = scanner.nextInt();
+        FIFOPageReplacement fifo = new FIFOPageReplacement(pageFrames);
+
+        System.out.print("Enter the number of page requests: ");
+        int n = scanner.nextInt();
+        System.out.println("Enter the page sequence:");
+        
+        for (int i = 0; i < n; i++) {
+            int page = scanner.nextInt();
+            fifo.insertPage(page);
+            fifo.printFrames();
+        }
+        scanner.close();
+    }
+    
+    public void printFrames() {
+        System.out.println("Current Frames: " + pages);
+    }
+}
+
+
+INPUT TO BE GIVEN
+
+Enter number of page frames: 3
+Enter the number of page requests: 7
+Enter the page sequence:
+1 2 3 2 4 1 5
+
+
+
+import java.util.LinkedList;  // Import LinkedList for use as a queue
+import java.util.Queue;       // Import Queue interface
+import java.util.Scanner;     // Import Scanner for user input
+
+// Class to implement the FIFO Page Replacement algorithm
+public class FIFOPageReplacement {
+
+    private int pageFrames;              // Maximum number of frames (pages in memory)
+    private Queue<Integer> pages = new LinkedList<>(); // Queue to hold pages in memory in FIFO order
+    
+    // Constructor: Initializes the number of page frames
+    public FIFOPageReplacement(int pageFrames) {
+        this.pageFrames = pageFrames;    // Set the page frame limit
+    }
+
+    // Method to insert a page into memory and handle page replacement if necessary
+    public void insertPage(int page) {
+        // Check if the page is already in memory (to avoid a page fault)
+        if (!pages.contains(page)) {
+            // If the number of pages in memory equals the frame limit, remove the oldest page
+            if (pages.size() == pageFrames) {
+                int removedPage = pages.poll(); // Remove the page at the front of the queue (oldest)
+                System.out.println("Page " + removedPage + " removed (Page Fault).");
+            }
+            // Add the new page to memory (the end of the queue, indicating it's the newest)
+            pages.add(page);
+            System.out.println("Page " + page + " added (Page Fault).");
+        } else {
+            // If the page is already in memory, print a message indicating no page fault
+            System.out.println("Page " + page + " accessed (No Page Fault).");
+        }
+    }
+
+    // Main method to handle user input and manage the page request sequence
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);   // Create Scanner instance for user input
+        
+        System.out.print("Enter number of page frames: ");
+        int pageFrames = scanner.nextInt();         // Read the maximum number of frames
+        FIFOPageReplacement fifo = new FIFOPageReplacement(pageFrames); // Initialize FIFO with frame limit
+
+        System.out.print("Enter the number of page requests: ");
+        int n = scanner.nextInt();                  // Read the number of page requests
+        System.out.println("Enter the page sequence:");
+        
+        // Loop through each page request and insert it into memory
+        for (int i = 0; i < n; i++) {
+            int page = scanner.nextInt();           // Read each page request from user input
+            fifo.insertPage(page);                  // Insert page using FIFO logic
+            fifo.printFrames();                     // Display the current pages in memory
+        }
+        scanner.close();                            // Close the scanner to prevent resource leak
+    }
+    
+    // Method to print the current frames in memory
+    public void printFrames() {
+        System.out.println("Current Frames: " + pages); // Display the current contents of the queue
+    }
+}
